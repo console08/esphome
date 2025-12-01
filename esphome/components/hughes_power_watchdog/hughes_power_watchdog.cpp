@@ -191,8 +191,8 @@ void HughesPowerWatchdog::process_tx_notification(uint8_t *value, uint16_t value
             header     volts       amps        watts       energy    error_code
 
       1 => 00 03 d0 00 53 d7 01 ff df 10 00 00 00 17 6d c7 1c 00 00 00
-                                                              \______/
-                                                                line
+                                            \_________/       \______/
+                                             frequency          line
   **/
   if (IsFirstHalfOfMessage(value)) {
     memcpy(this->msg_buffer_, value, value_len);
