@@ -6,12 +6,14 @@ from esphome.const import (
     CONF_VOLTAGE,
     CONF_CURRENT,
     CONF_POWER,
+    CONF_FREQUENCY,
     CONF_TOTAL_POWER,
     DEVICE_CLASS_CURRENT,
     DEVICE_CLASS_EMPTY,
     DEVICE_CLASS_ENERGY,
     DEVICE_CLASS_POWER,
     DEVICE_CLASS_VOLTAGE,
+    DEVICE_CLASS_FREQUENCY,
     ICON_CURRENT_AC,
     STATE_CLASS_MEASUREMENT,
     STATE_CLASS_NONE,
@@ -19,7 +21,8 @@ from esphome.const import (
     UNIT_AMPERE,
     UNIT_KILOWATT_HOURS,
     UNIT_VOLT,
-    UNIT_WATT
+    UNIT_WATT,
+    UNIT_HERTZ
 )
 
 _CONF_LINE_1 = "_line_1"
@@ -28,10 +31,12 @@ _CONF_LINE_2 = "_line_2"
 CONF_VOLTAGE_LINE_1 = CONF_VOLTAGE + _CONF_LINE_1
 CONF_CURRENT_LINE_1 = CONF_CURRENT + _CONF_LINE_1
 CONF_POWER_LINE_1 = CONF_POWER + _CONF_LINE_1
+CONF_FREQUENCY_LINE_1 = CONF_FREQUENCY + _CONF_LINE_1
 
 CONF_VOLTAGE_LINE_2 = CONF_VOLTAGE + _CONF_LINE_2
 CONF_CURRENT_LINE_2 = CONF_CURRENT + _CONF_LINE_2
 CONF_POWER_LINE_2 = CONF_POWER + _CONF_LINE_2
+CONF_FREQUENCY_LINE_2 = CONF_FREQUENCY + _CONF_LINE_2
 
 CONF_POWER_COMBINED = "combined_" + CONF_POWER
 
@@ -44,6 +49,7 @@ ICON_POWER_WATT = "mdi:lightning-bolt"
 ICON_TOTAL_POWER = "mdi:lightning-bolt-circle"
 ICON_ERROR_CODE = "mdi:alert-circle"
 ICON_ERROR_TEXT = "mdi:tooltip-text"
+ICON_FREQUENCY = "mdi:sine-wave"
 
 AUTO_LOAD = ["text_sensor"]
 CODEOWNERS = ["@spbrogan"]
@@ -79,6 +85,13 @@ CONFIG_SCHEMA = (
                 device_class=DEVICE_CLASS_POWER,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
+            cv.Optional(CONF_FREQUENCY_LINE_1): sensor.sensor_schema(
+                unit_of_measurement=UNIT_HERTZ,
+                icon=ICON_FREQUENCY,
+                accuracy_decimals=2,
+                device_class=DEVICE_CLASS_FREQUENCY,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
             cv.Optional(CONF_VOLTAGE_LINE_2): sensor.sensor_schema(
                 unit_of_measurement=UNIT_VOLT,
                 icon=ICON_VOLTAGE,
@@ -98,6 +111,13 @@ CONFIG_SCHEMA = (
                 icon=ICON_POWER_WATT,
                 accuracy_decimals=2,
                 device_class=DEVICE_CLASS_POWER,
+                state_class=STATE_CLASS_MEASUREMENT,
+            ),
+            cv.Optional(CONF_FREQUENCY_LINE_2): sensor.sensor_schema(
+                unit_of_measurement=UNIT_HERTZ,
+                icon=ICON_FREQUENCY,
+                accuracy_decimals=2,
+                device_class=DEVICE_CLASS_FREQUENCY,
                 state_class=STATE_CLASS_MEASUREMENT,
             ),
             cv.Optional(CONF_POWER_COMBINED): sensor.sensor_schema(
@@ -146,6 +166,10 @@ async def to_code(config):
         sens = await sensor.new_sensor(config[CONF_POWER_LINE_1])
         cg.add(var.set_power_line_1(sens))
 
+    if CONF_FREQUENCY_LINE_1 in config:
+        sens = await sensor.new_sensor(config[CONF_FREQUENCY_LINE_1])
+        cg.add(var.set_frequency_line_1(sens))
+
     if CONF_VOLTAGE_LINE_2 in config:
         sens = await sensor.new_sensor(config[CONF_VOLTAGE_LINE_2])
         cg.add(var.set_voltage_line_2(sens))
@@ -157,6 +181,10 @@ async def to_code(config):
     if CONF_POWER_LINE_2 in config:
         sens = await sensor.new_sensor(config[CONF_POWER_LINE_2])
         cg.add(var.set_power_line_2(sens))
+
+    if CONF_FREQUENCY_LINE_2 in config:
+        sens = await sensor.new_sensor(config[CONF_FREQUENCY_LINE_2])
+        cg.add(var.set_frequency_line_2(sens))
 
     if CONF_POWER_COMBINED in config:
         sens = await sensor.new_sensor(config[CONF_POWER_COMBINED])
