@@ -40,6 +40,11 @@ class HughesPowerWatchdog : public PollingComponent, public ble_client::BLEClien
 
   void set_error_code(sensor::Sensor *error) { error_code_ = error; };  // error code between 0 - 9
   void set_error_text(text_sensor::TextSensor *error_text) { error_text_ = error_text; };  // error message text
+
+  // Frequency sensors (Hz)
+  void set_frequency_line_1(sensor::Sensor *frequency) { frequency_l1_ = frequency; };
+  void set_frequency_line_2(sensor::Sensor *frequency) { frequency_l2_ = frequency; };
+
   uint16_t handle;
 
  protected:
@@ -54,6 +59,11 @@ class HughesPowerWatchdog : public PollingComponent, public ble_client::BLEClien
   sensor::Sensor *cumulative_energy_{nullptr};
   sensor::Sensor *error_code_{nullptr};
   text_sensor::TextSensor *error_text_{nullptr};
+
+  // Frequency sensors
+  sensor::Sensor *frequency_l1_{nullptr};
+  sensor::Sensor *frequency_l2_{nullptr};
+
   void ReportSensor(bool UseInstanceData);
 
   uint8_t chunk_1_content_populated;
@@ -69,6 +79,8 @@ class HughesPowerWatchdog : public PollingComponent, public ble_client::BLEClien
   float line2_p_;             // line 2 power
   float line1_ce_;            // line 1 cumulative energy
   float line2_ce_;            // line 2 cumulative energy
+  float line1_f_;             // line 1 frequency (Hz)
+  float line2_f_;             // line 2 frequency (Hz)
   uint8_t error_code_value_;  // value of
   bool new_data_;             // boolean to indicate new data
 };

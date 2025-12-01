@@ -89,6 +89,8 @@ HughesPowerWatchdog::HughesPowerWatchdog()
   this->line2_p_ = 0.0f;
   this->line1_ce_ = 0.0f;
   this->line2_ce_ = 0.0f;
+  this->line1_f_ = 0.0f;
+  this->line2_f_ = 0.0f;
   this->error_code_value_ = 0;
   this->new_data_ = false;
 }
@@ -103,6 +105,8 @@ void HughesPowerWatchdog::dump_config() {
   LOG_SENSOR("  ", "Power Line 2", this->power_l2_);
   LOG_SENSOR("  ", "Power Combined", this->power_combined_);
   LOG_SENSOR("  ", "Cumulative Energy", this->cumulative_energy_);
+  LOG_SENSOR("  ", "Frequency Line 1", this->frequency_l1_);
+  LOG_SENSOR("  ", "Frequency Line 2", this->frequency_l2_);
   LOG_SENSOR("  ", "Error Code Value", this->error_code_);
   LOG_TEXT_SENSOR("  ", "Error Text String", this->error_text_);
 }
@@ -227,17 +231,22 @@ void HughesPowerWatchdog::process_tx_notification(uint8_t *value, uint16_t value
   float watts = (float) ReadBigEndianInt32(this->msg_buffer_, 11) / 10000;
   float energy = (float) ReadBigEndianInt32(this->msg_buffer_, 15) / 10000;
 
+  // Frequency is stored at offset 31 in msg_buffer_ and needs to be divided by 100
+  float frequency = (float) ReadBigEndianInt32(this->msg_buffer_, 31) / 100.0f;
+
   this->error_code_value_ = this->msg_buffer_[19];
   if (line == 1) {
     this->line1_v_ = volts;
     this->line1_c_ = amps;
     this->line1_p_ = watts;
     this->line1_ce_ = energy;
+    this->line1_f_ = frequency;
   } else {
     this->line2_v_ = volts;
     this->line2_c_ = amps;
     this->line2_p_ = watts;
     this->line2_ce_ = energy;
+    this->line2_f_ = frequency;
   }
   this->new_data_ = true;
 }
@@ -280,6 +289,14 @@ void HughesPowerWatchdog::ReportSensor(bool UseInstanceData) {
       this->power_combined_->publish_state(this->line2_p_ + this->line1_p_);
     }
 
+    // Frequency (Hz)
+    if (this->frequency_l1_ != nullptr) {
+      this->frequency_l1_->publish_state(this->line1_f_);
+    }
+    if (this->frequency_l2_ != nullptr) {
+      this->frequency_l2_->publish_state(this->line2_f_);
+    }
+
     // Cumulative Power since user reset (KilowattHours)
     if (this->cumulative_energy_ != nullptr) {
       this->cumulative_energy_->publish_state(this->line1_ce_ + this->line2_ce_);
@@ -317,6 +334,14 @@ void HughesPowerWatchdog::ReportSensor(bool UseInstanceData) {
     }
     if (this->power_combined_ != nullptr) {
       this->power_combined_->publish_state(NAN);
+    }
+
+    // Frequency (Hz)
+    if (this->frequency_l1_ != nullptr) {
+      this->frequency_l1_->publish_state(NAN);
+    }
+    if (this->frequency_l2_ != nullptr) {
+      this->frequency_l2_->publish_state(NAN);
     }
 
     // Cumulative Power since user reset (KilowattHours)
