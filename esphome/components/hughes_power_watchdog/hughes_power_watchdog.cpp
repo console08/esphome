@@ -230,9 +230,7 @@ void HughesPowerWatchdog::process_tx_notification(uint8_t *value, uint16_t value
   float amps = (float) ReadBigEndianInt32(this->msg_buffer_, 7) / 10000;
   float watts = (float) ReadBigEndianInt32(this->msg_buffer_, 11) / 10000;
   float energy = (float) ReadBigEndianInt32(this->msg_buffer_, 15) / 10000;
-
-  // Frequency is stored at offset 31 in msg_buffer_ and needs to be divided by 100
-  float frequency = (float) ReadBigEndianInt32(this->msg_buffer_, 31) / 100.0f;
+  float frequency = (float) ReadBigEndianInt32(this->msg_buffer_, 31) / 100;
 
   this->error_code_value_ = this->msg_buffer_[19];
   if (line == 1) {
