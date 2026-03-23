@@ -131,8 +131,10 @@ void HughesPowerWatchdog::gattc_event_handler(esp_gattc_cb_event_t event, esp_ga
       auto *chr = this->parent()->get_characteristic(this->service_uuid_, this->char_uuid_);
       if (chr == nullptr) {
         this->status_set_warning();
-        ESP_LOGW(TAG, "No sensor characteristic found at service %s char %s", this->service_uuid_.to_string().c_str(),
-                 this->char_uuid_.to_string().c_str());
+        char srvc_uuid_buf[esp32_ble::UUID_STR_LEN];
+        char char_uuid_buf[esp32_ble::UUID_STR_LEN];
+        ESP_LOGW(TAG, "No sensor characteristic found at service %s char %s", this->service_uuid_.to_str(srvc_uuid_buf),
+                 this->char_uuid_.to_str(char_uuid_buf));
         break;
       }
       this->handle = chr->handle;
